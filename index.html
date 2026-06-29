@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Frasi in Simboli - CAA</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: 'Comic Sans MS', 'Verdana', Arial, sans-serif;
+    background: #f4f8fb;
+    color: #2b2b2b;
+    padding: 20px;
+  }
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  h1 {
+    text-align: center;
+    color: #2b6cb0;
+    font-size: 2.2rem;
+    margin-bottom: 5px;
+  }
+  .sottotitolo {
+    text-align: center;
+    color: #555;
+    margin-bottom: 25px;
+    font-size: 1.1rem;
+  }
+  .input-area {
+    background: white;
+    border-radius: 18px;
+    padding: 20px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    margin-bottom: 25px;
+  }
+  textarea {
+    width: 100%;
+    font-size: 1.4rem;
+    padding: 14px;
+    border-radius: 12px;
+    border: 3px solid #90cdf4;
+    resize: vertical;
+    min-height: 70px;
+    font-family: inherit;
+  }
+  textarea:focus { outline: none; border-color: #3182ce; }
+  .button-row {
+    display: flex;
+    gap: 10px;
+    margin-top: 14px;
+    flex-wrap: wrap;
+  }
+  button {
+    font-size: 1.2rem;
+    padding: 14px 28px;
+    border: none;
+    border-radius: 14px;
+    cursor: pointer;
+    font-weight: bold;
+    font-family: inherit;
+    transition: transform .1s;
+  }
+  button:active { transform: scale(0.96); }
+  .btn-trasforma {
+    background: #3182ce;
+    color: white;
+    flex: 1;
+  }
+  .btn-pulisci {
+    background: #e2e8f0;
+    color: #333;
+  }
+  .btn-leggi {
+    background: #38a169;
+    color: white;
+  }
+  .esempi {
+    text-align: center;
+    margin-bottom: 25px;
+  }
+  .esempi button {
+    background: #fefcbf;
+    color: #744210;
+    font-size: 1rem;
+    padding: 8px 16px;
+    margin: 4px;
+    border-radius: 20px;
+    border: 2px solid #f6e05e;
+  }
+  .risultato {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    justify-content: center;
+    padding: 10px;
+  }
+  .simbolo {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    width: 130px;
+    min-height: 150px;
+    border-radius: 16px;
+    border: 4px solid;
+    padding: 10px 6px;
+    background: white;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.10);
+  }
+  .simbolo .icona {
+    font-size: 3.4rem;
+    line-height: 1;
+    margin-bottom: 8px;
+    margin-top: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 80px;
+  }
+  .simbolo .icona img {
+    max-width: 90px;
+    max-height: 80px;
+    object-fit: contain;
+  }
+  .generico { border-color: #cbd5e0; background: #f7fafc; }
+  .simbolo .parola {
+    font-size: 1.15rem;
+    font-weight: bold;
+    text-align: center;
+    word-break: break-word;
+    color: #222;
+  }
+  /* Colori categorie grammaticali - schema CAA / Fitzgerald Key */
+  .nome      { border-color: #f6ad55; background: #fff7ed; } /* arancione - cose */
+  .nome-persona { border-color: #f6e05e; background: #fffff0; } /* giallo - persone/pronomi */
+  .verbo     { border-color: #68d391; background: #f0fff4; } /* verde - azioni */
+  .aggettivo { border-color: #63b3ed; background: #ebf8ff; } /* blu - descrittori */
+  .funzione  { border-color: #cbd5e0; background: #f7fafc; } /* bianco/grigio - articoli, preposizioni */
+  .sociale   { border-color: #f687b3; background: #fff5f7; } /* rosa - frasi sociali */
+  .domanda   { border-color: #b794f4; background: #faf5ff; } /* viola - domande/negazioni */
+
+  .legenda {
+    margin-top: 35px;
+    background: white;
+    border-radius: 16px;
+    padding: 16px 20px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+  }
+  .legenda h2 { margin-top: 0; font-size: 1.2rem; color: #2b6cb0; }
+  .legenda-riga {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 6px 0;
+    font-size: 1rem;
+  }
+  .pallino {
+    width: 22px; height: 22px; border-radius: 6px; border: 3px solid;
+    display: inline-block;
+  }
+  .non-trovata { opacity: 0.55; }
+  .non-trovata .parola::after { content: " ?"; color: #c53030; }
+
+  footer {
+    text-align: center;
+    margin-top: 30px;
+    color: #888;
+    font-size: 0.9rem;
+    padding-bottom: 20px;
+  }
+
+  /* ─── RESPONSIVE MOBILE ────────────────────────────────────────── */
+  @media (max-width: 600px) {
+    body {
+      padding: 12px 10px;
+    }
+    h1 {
+      font-size: 1.5rem;
+      margin-bottom: 4px;
+    }
+    .sottotitolo {
+      font-size: 0.95rem;
+      margin-bottom: 16px;
+    }
+    .input-area {
+      padding: 14px 12px;
+      border-radius: 14px;
+      margin-bottom: 16px;
+    }
+    textarea {
+      font-size: 1.1rem;
+      padding: 10px 12px;
+      min-height: 60px;
+    }
+    .button-row {
+      gap: 8px;
+      margin-top: 10px;
+    }
+    button {
+      font-size: 1rem;
+      padding: 12px 14px;
+      border-radius: 12px;
+    }
+    /* Su mobile: Trasforma occupa tutta la riga, gli altri si dividono */
+    .btn-trasforma {
+      width: 100%;
+      flex: none;
+    }
+    .btn-leggi, .btn-pulisci {
+      flex: 1;
+    }
+    .esempi {
+      margin-bottom: 16px;
+    }
+    .esempi button {
+      font-size: 0.85rem;
+      padding: 7px 12px;
+      margin: 3px;
+    }
+    /* Simboli più piccoli su mobile, 3 per riga */
+    .risultato {
+      gap: 8px;
+      padding: 6px 2px;
+    }
+    .simbolo {
+      width: calc(33.33% - 6px);
+      min-width: 90px;
+      max-width: 110px;
+      min-height: 120px;
+      padding: 8px 4px;
+      border-radius: 12px;
+      border-width: 3px;
+    }
+    .simbolo .icona {
+      height: 64px;
+    }
+    .simbolo .icona img {
+      max-width: 72px;
+      max-height: 64px;
+    }
+    .simbolo .parola {
+      font-size: 0.9rem;
+    }
+    .legenda {
+      padding: 12px 14px;
+      margin-top: 20px;
+    }
+    .legenda h2 {
+      font-size: 1rem;
+    }
+    .legenda-riga {
+      font-size: 0.88rem;
+      gap: 8px;
+    }
+    .pallino {
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
+    }
+    footer {
+      font-size: 0.8rem;
+      margin-top: 20px;
+    }
+  }
+
+  /* Tablet (600–900px): 4 simboli per riga */
+  @media (min-width: 601px) and (max-width: 900px) {
+    body { padding: 16px; }
+    h1 { font-size: 1.8rem; }
+    .simbolo {
+      width: 120px;
+      min-height: 140px;
+    }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>🖼️ Frasi in Simboli</h1>
+  <p class="sottotitolo">Scrivi una frase e trasformala in immagini colorate, semplici da capire</p>
+
+  <div class="input-area">
+    <textarea id="frase" placeholder="Scrivi qui la frase... (es. La mamma mangia la mela)"></textarea>
+    <div class="button-row">
+      <button class="btn-trasforma" onclick="trasforma()">✨ Trasforma in immagini</button>
+      <button class="btn-leggi" onclick="leggiFrase()">🔊 Leggi</button>
+      <button class="btn-pulisci" onclick="pulisci()">🗑️ Pulisci</button>
+    </div>
+  </div>
+
+  <div class="esempi">
+    <button onclick="provaEsempio('Io voglio mangiare la pizza')">Io voglio mangiare la pizza</button>
+    <button onclick="provaEsempio('La mamma è felice')">La mamma è felice</button>
+    <button onclick="provaEsempio('Il cane corre nel parco')">Il cane corre nel parco</button>
+    <button onclick="provaEsempio('Io vado a scuola')">Io vado a scuola</button>
+  </div>
+
+  <div class="risultato" id="risultato"></div>
+
+  <div class="legenda">
+    <h2>📌 Cosa significano i colori</h2>
+    <div class="legenda-riga"><span class="pallino" style="border-color:#f6e05e;background:#fffff0;"></span> Giallo = persone (io, tu, mamma, papà...)</div>
+    <div class="legenda-riga"><span class="pallino" style="border-color:#68d391;background:#f0fff4;"></span> Verde = azioni / verbi (mangiare, correre, andare...)</div>
+    <div class="legenda-riga"><span class="pallino" style="border-color:#f6ad55;background:#fff7ed;"></span> Arancione = cose / oggetti (mela, palla, casa...)</div>
+    <div class="legenda-riga"><span class="pallino" style="border-color:#63b3ed;background:#ebf8ff;"></span> Blu = come sono le cose (felice, grande, rosso...)</div>
+    <div class="legenda-riga"><span class="pallino" style="border-color:#b794f4;background:#faf5ff;"></span> Viola = domande e parole speciali (chi, dove, no...)</div>
+    <div class="legenda-riga"><span class="pallino" style="border-color:#f687b3;background:#fff5f7;"></span> Rosa = parole sociali (ciao, grazie, per favore...)</div>
+    <div class="legenda-riga"><span class="pallino" style="border-color:#cbd5e0;background:#f7fafc;"></span> Grigio = parole piccole (il, la, di, e, in...)</div>
+  </div>
+
+  <footer>Sito ispirato agli standard CAA (Comunicazione Aumentativa Alternativa) e ai quaderni con simboli stile Symwriter/Widgit.</footer>
+</div>
+
+<script>
+/* Dizionario parola -> {icona, categoria}
+   categoria determina il colore della cornice */
+const dizionario = {
+  // PERSONE / PRONOMI (giallo)
+  "io": {icona:"🙋", cat:"nome-persona"},
+  "tu": {icona:"👉", cat:"nome-persona"},
+  "lui": {icona:"👦", cat:"nome-persona"},
+  "lei": {icona:"👧", cat:"nome-persona"},
+  "noi": {icona:"👫", cat:"nome-persona"},
+  "voi": {icona:"👨‍👩‍👧", cat:"nome-persona"},
+  "loro": {icona:"👥", cat:"nome-persona"},
+  "mamma": {icona:"👩", cat:"nome-persona"},
+  "papà": {icona:"👨", cat:"nome-persona"},
+  "papa": {icona:"👨", cat:"nome-persona"},
+  "nonna": {icona:"👵", cat:"nome-persona"},
+  "nonno": {icona:"👴", cat:"nome-persona"},
+  "fratello": {icona:"👦", cat:"nome-persona"},
+  "sorella": {icona:"👧", cat:"nome-persona"},
+  "amico": {icona:"🧑‍🤝‍🧑", cat:"nome-persona"},
+  "amica": {icona:"🧑‍🤝‍🧑", cat:"nome-persona"},
+  "maestra": {icona:"👩‍🏫", cat:"nome-persona"},
+  "maestro": {icona:"👨‍🏫", cat:"nome-persona"},
+  "bambino": {icona:"🧒", cat:"nome-persona"},
+  "bambina": {icona:"🧒", cat:"nome-persona"},
+
+  // VERBI / AZIONI (verde)
+  "essere": {icona:"⚪", cat:"verbo"},
+  "è": {icona:"➡️", cat:"verbo"},
+  "sono": {icona:"➡️", cat:"verbo"},
+  "sei": {icona:"➡️", cat:"verbo"},
+  "siamo": {icona:"➡️", cat:"verbo"},
+  "siete": {icona:"➡️", cat:"verbo"},
+  "avere": {icona:"🤲", cat:"verbo"},
+  "ho": {icona:"🤲", cat:"verbo"},
+  "hai": {icona:"🤲", cat:"verbo"},
+  "ha": {icona:"🤲", cat:"verbo"},
+  "abbiamo": {icona:"🤲", cat:"verbo"},
+  "andare": {icona:"🚶", cat:"verbo"},
+  "vado": {icona:"🚶", cat:"verbo"},
+  "vai": {icona:"🚶", cat:"verbo"},
+  "va": {icona:"🚶", cat:"verbo"},
+  "andiamo": {icona:"🚶", cat:"verbo"},
+  "mangiare": {icona:"🍽️", cat:"verbo"},
+  "mangio": {icona:"🍽️", cat:"verbo"},
+  "mangi": {icona:"🍽️", cat:"verbo"},
+  "mangia": {icona:"🍽️", cat:"verbo"},
+  "mangiamo": {icona:"🍽️", cat:"verbo"},
+  "bere": {icona:"🥤", cat:"verbo"},
+  "bevo": {icona:"🥤", cat:"verbo"},
+  "beve": {icona:"🥤", cat:"verbo"},
+  "dormire": {icona:"😴", cat:"verbo"},
+  "dormo": {icona:"😴", cat:"verbo"},
+  "dorme": {icona:"😴", cat:"verbo"},
+  "giocare": {icona:"🧸", cat:"verbo"},
+  "gioco": {icona:"🧸", cat:"verbo"},
+  "gioca": {icona:"🧸", cat:"verbo"},
+  "giochiamo": {icona:"🧸", cat:"verbo"},
+  "correre": {icona:"🏃", cat:"verbo"},
+  "corro": {icona:"🏃", cat:"verbo"},
+  "corre": {icona:"🏃", cat:"verbo"},
+  "vedere": {icona:"👀", cat:"verbo"},
+  "vedo": {icona:"👀", cat:"verbo"},
+  "vede": {icona:"👀", cat:"verbo"},
+  "guardare": {icona:"👀", cat:"verbo"},
+  "guardo": {icona:"👀", cat:"verbo"},
+  "guarda": {icona:"👀", cat:"verbo"},
+  "ascoltare": {icona:"👂", cat:"verbo"},
+  "ascolto": {icona:"👂", cat:"verbo"},
+  "ascolta": {icona:"👂", cat:"verbo"},
+  "parlare": {icona:"🗣️", cat:"verbo"},
+  "parlo": {icona:"🗣️", cat:"verbo"},
+  "parla": {icona:"🗣️", cat:"verbo"},
+  "leggere": {icona:"📖", cat:"verbo"},
+  "leggo": {icona:"📖", cat:"verbo"},
+  "legge": {icona:"📖", cat:"verbo"},
+  "scrivere": {icona:"✏️", cat:"verbo"},
+  "scrivo": {icona:"✏️", cat:"verbo"},
+  "scrive": {icona:"✏️", cat:"verbo"},
+  "volere": {icona:"💭", cat:"verbo"},
+  "voglio": {icona:"💭", cat:"verbo"},
+  "vuoi": {icona:"💭", cat:"verbo"},
+  "vuole": {icona:"💭", cat:"verbo"},
+  "vogliamo": {icona:"💭", cat:"verbo"},
+  "fare": {icona:"🛠️", cat:"verbo"},
+  "faccio": {icona:"🛠️", cat:"verbo"},
+  "fai": {icona:"🛠️", cat:"verbo"},
+  "fa": {icona:"🛠️", cat:"verbo"},
+  "facciamo": {icona:"🛠️", cat:"verbo"},
+  "venire": {icona:"🚪", cat:"verbo"},
+  "vengo": {icona:"🚪", cat:"verbo"},
+  "viene": {icona:"🚪", cat:"verbo"},
+  "dare": {icona:"🎁", cat:"verbo"},
+  "do": {icona:"🎁", cat:"verbo"},
+  "dai": {icona:"🎁", cat:"verbo"},
+  "da": {icona:"🎁", cat:"verbo"},
+  "prendere": {icona:"✋", cat:"verbo"},
+  "prendo": {icona:"✋", cat:"verbo"},
+  "prende": {icona:"✋", cat:"verbo"},
+  "aprire": {icona:"🔓", cat:"verbo"},
+  "apro": {icona:"🔓", cat:"verbo"},
+  "apre": {icona:"🔓", cat:"verbo"},
+  "chiudere": {icona:"🔒", cat:"verbo"},
+  "chiudo": {icona:"🔒", cat:"verbo"},
+  "chiude": {icona:"🔒", cat:"verbo"},
+  "saltare": {icona:"🤸", cat:"verbo"},
+  "salto": {icona:"🤸", cat:"verbo"},
+  "salta": {icona:"🤸", cat:"verbo"},
+  "cantare": {icona:"🎤", cat:"verbo"},
+  "canto": {icona:"🎤", cat:"verbo"},
+  "canta": {icona:"🎤", cat:"verbo"},
+  "disegnare": {icona:"🖍️", cat:"verbo"},
+  "disegno": {icona:"🖍️", cat:"verbo"},
+  "disegna": {icona:"🖍️", cat:"verbo"},
+  "lavare": {icona:"🧼", cat:"verbo"},
+  "lavo": {icona:"🧼", cat:"verbo"},
+  "lava": {icona:"🧼", cat:"verbo"},
+  "amare": {icona:"❤️", cat:"verbo"},
+  "amo": {icona:"❤️", cat:"verbo"},
+  "ama": {icona:"❤️", cat:"verbo"},
+  "piacere": {icona:"😊", cat:"verbo"},
+  "piace": {icona:"😊", cat:"verbo"},
+  "piacciono": {icona:"😊", cat:"verbo"},
+  "ridere": {icona:"😄", cat:"verbo"},
+  "rido": {icona:"😄", cat:"verbo"},
+  "ride": {icona:"😄", cat:"verbo"},
+  "piangere": {icona:"😢", cat:"verbo"},
+  "piango": {icona:"😢", cat:"verbo"},
+  "piange": {icona:"😢", cat:"verbo"},
+  "studiare": {icona:"📚", cat:"verbo"},
+  "studio": {icona:"📚", cat:"verbo"},
+  "studia": {icona:"📚", cat:"verbo"},
+
+  // NOMI / OGGETTI (arancione)
+  "pizza": {icona:"🍕", cat:"nome"},
+  "mela": {icona:"🍎", cat:"nome"},
+  "pane": {icona:"🍞", cat:"nome"},
+  "acqua": {icona:"💧", cat:"nome"},
+  "latte": {icona:"🥛", cat:"nome"},
+  "palla": {icona:"⚽", cat:"nome"},
+  "libro": {icona:"📕", cat:"nome"},
+  "casa": {icona:"🏠", cat:"nome"},
+  "scuola": {icona:"🏫", cat:"nome"},
+  "parco": {icona:"🌳", cat:"nome"},
+  "giardino": {icona:"🌷", cat:"nome"},
+  "cane": {icona:"🐶", cat:"nome"},
+  "gatto": {icona:"🐱", cat:"nome"},
+  "macchina": {icona:"🚗", cat:"nome"},
+  "treno": {icona:"🚆", cat:"nome"},
+  "sole": {icona:"☀️", cat:"nome"},
+  "luna": {icona:"🌙", cat:"nome"},
+  "letto": {icona:"🛏️", cat:"nome"},
+  "tavolo": {icona:"🪑", cat:"nome"},
+  "porta": {icona:"🚪", cat:"nome"},
+  "finestra": {icona:"🪟", cat:"nome"},
+  "telefono": {icona:"📱", cat:"nome"},
+  "televisione": {icona:"📺", cat:"nome"},
+  "musica": {icona:"🎵", cat:"nome"},
+  "scarpe": {icona:"👟", cat:"nome"},
+  "vestito": {icona:"👕", cat:"nome"},
+  "bagno": {icona:"🚽", cat:"nome"},
+  "cucina": {icona:"🍳", cat:"nome"},
+  "gelato": {icona:"🍨", cat:"nome"},
+  "biscotto": {icona:"🍪", cat:"nome"},
+  "torta": {icona:"🎂", cat:"nome"},
+  "banana": {icona:"🍌", cat:"nome"},
+  "succo": {icona:"🧃", cat:"nome"},
+  "zaino": {icona:"🎒", cat:"nome"},
+  "matita": {icona:"✏️", cat:"nome"},
+  "quaderno": {icona:"📓", cat:"nome"},
+  "pallone": {icona:"⚽", cat:"nome"},
+  "bici": {icona:"🚲", cat:"nome"},
+  "bicicletta": {icona:"🚲", cat:"nome"},
+  "festa": {icona:"🎉", cat:"nome"},
+  "regalo": {icona:"🎁", cat:"nome"},
+  "pioggia": {icona:"🌧️", cat:"nome"},
+  "neve": {icona:"❄️", cat:"nome"},
+  "albero": {icona:"🌳", cat:"nome"},
+  "fiore": {icona:"🌸", cat:"nome"},
+  "uccello": {icona:"🐦", cat:"nome"},
+  "pesce": {icona:"🐟", cat:"nome"},
+  "mare": {icona:"🌊", cat:"nome"},
+  "montagna": {icona:"⛰️", cat:"nome"},
+  "doccia": {icona:"🚿", cat:"nome"},
+
+  // AGGETTIVI (blu)
+  "felice": {icona:"😄", cat:"aggettivo"},
+  "triste": {icona:"😢", cat:"aggettivo"},
+  "arrabbiato": {icona:"😠", cat:"aggettivo"},
+  "stanco": {icona:"😪", cat:"aggettivo"},
+  "spaventato": {icona:"😨", cat:"aggettivo"},
+  "grande": {icona:"🟦", cat:"aggettivo"},
+  "piccolo": {icona:"🔹", cat:"aggettivo"},
+  "piccola": {icona:"🔹", cat:"aggettivo"},
+  "caldo": {icona:"🔥", cat:"aggettivo"},
+  "freddo": {icona:"🧊", cat:"aggettivo"},
+  "bello": {icona:"🌟", cat:"aggettivo"},
+  "bella": {icona:"🌟", cat:"aggettivo"},
+  "brutto": {icona:"👎", cat:"aggettivo"},
+  "buono": {icona:"😋", cat:"aggettivo"},
+  "buona": {icona:"😋", cat:"aggettivo"},
+  "cattivo": {icona:"😈", cat:"aggettivo"},
+  "rosso": {icona:"🔴", cat:"aggettivo"},
+  "blu": {icona:"🔵", cat:"aggettivo"},
+  "giallo": {icona:"🟡", cat:"aggettivo"},
+  "verde": {icona:"🟢", cat:"aggettivo"},
+  "nuovo": {icona:"✨", cat:"aggettivo"},
+  "vecchio": {icona:"👴", cat:"aggettivo"},
+  "veloce": {icona:"💨", cat:"aggettivo"},
+  "lento": {icona:"🐢", cat:"aggettivo"},
+  "alto": {icona:"⬆️", cat:"aggettivo"},
+  "basso": {icona:"⬇️", cat:"aggettivo"},
+  "pulito": {icona:"🧼", cat:"aggettivo"},
+  "sporco": {icona:"💩", cat:"aggettivo"},
+  "contento": {icona:"😊", cat:"aggettivo"},
+  "contenta": {icona:"😊", cat:"aggettivo"},
+  "malato": {icona:"🤒", cat:"aggettivo"},
+  "stanca": {icona:"😪", cat:"aggettivo"},
+
+  // DOMANDE / NEGAZIONI / SPECIALI (viola)
+  "chi": {icona:"❓", cat:"domanda"},
+  "cosa": {icona:"❓", cat:"domanda"},
+  "che": {icona:"❓", cat:"domanda"},
+  "dove": {icona:"📍", cat:"domanda"},
+  "quando": {icona:"⏰", cat:"domanda"},
+  "come": {icona:"❔", cat:"domanda"},
+  "perché": {icona:"❓", cat:"domanda"},
+  "perche": {icona:"❓", cat:"domanda"},
+  "quale": {icona:"❓", cat:"domanda"},
+  "quanto": {icona:"❓", cat:"domanda"},
+  "no": {icona:"🚫", cat:"domanda"},
+  "non": {icona:"🚫", cat:"domanda"},
+  "sì": {icona:"✅", cat:"domanda"},
+  "si": {icona:"✅", cat:"domanda"},
+
+  // FRASI SOCIALI (rosa)
+  "ciao": {icona:"👋", cat:"sociale"},
+  "grazie": {icona:"🙏", cat:"sociale"},
+  "prego": {icona:"🙏", cat:"sociale"},
+  "scusa": {icona:"🙇", cat:"sociale"},
+  "scusi": {icona:"🙇", cat:"sociale"},
+  "favore": {icona:"🙏", cat:"sociale"},
+  "buongiorno": {icona:"🌞", cat:"sociale"},
+  "buonasera": {icona:"🌆", cat:"sociale"},
+  "buonanotte": {icona:"🌙", cat:"sociale"},
+  "aiuto": {icona:"🆘", cat:"sociale"},
+  "basta": {icona:"✋", cat:"sociale"},
+  "ok": {icona:"👌", cat:"sociale"},
+  "bravo": {icona:"👏", cat:"sociale"},
+  "brava": {icona:"👏", cat:"sociale"},
+
+  // PAROLE FUNZIONALI (grigio) - articoli, preposizioni, congiunzioni
+  "il": {icona:"·", cat:"funzione"},
+  "lo": {icona:"·", cat:"funzione"},
+  "la": {icona:"·", cat:"funzione"},
+  "le": {icona:"·", cat:"funzione"},
+  "gli": {icona:"·", cat:"funzione"},
+  "i": {icona:"·", cat:"funzione"},
+  "un": {icona:"·", cat:"funzione"},
+  "uno": {icona:"·", cat:"funzione"},
+  "una": {icona:"·", cat:"funzione"},
+  "di": {icona:"·", cat:"funzione"},
+  "a": {icona:"➡️", cat:"funzione"},
+  "in": {icona:"📥", cat:"funzione"},
+  "con": {icona:"🤝", cat:"funzione"},
+  "su": {icona:"⬆️", cat:"funzione"},
+  "per": {icona:"➡️", cat:"funzione"},
+  "tra": {icona:"↔️", cat:"funzione"},
+  "fra": {icona:"↔️", cat:"funzione"},
+  "e": {icona:"➕", cat:"funzione"},
+  "o": {icona:"🔀", cat:"funzione"},
+  "ma": {icona:"⚖️", cat:"funzione"},
+  "anche": {icona:"➕", cat:"funzione"},
+  "molto": {icona:"📈", cat:"funzione"},
+  "poco": {icona:"📉", cat:"funzione"},
+  "oggi": {icona:"📅", cat:"funzione"},
+  "domani": {icona:"📅", cat:"funzione"},
+  "ieri": {icona:"📅", cat:"funzione"},
+  "adesso": {icona:"⏰", cat:"funzione"},
+  "ora": {icona:"⏰", cat:"funzione"},
+  "qui": {icona:"📍", cat:"funzione"},
+  "qua": {icona:"📍", cat:"funzione"},
+  "lì": {icona:"📍", cat:"funzione"},
+  "li": {icona:"📍", cat:"funzione"},
+  "mio": {icona:"·", cat:"funzione"},
+  "mia": {icona:"·", cat:"funzione"},
+  "tuo": {icona:"·", cat:"funzione"},
+  "tua": {icona:"·", cat:"funzione"},
+  "suo": {icona:"·", cat:"funzione"},
+  "sua": {icona:"·", cat:"funzione"},
+  "questo": {icona:"·", cat:"funzione"},
+  "questa": {icona:"·", cat:"funzione"}
+};
+
+// ═══════════════════════════════════════════════════════════════════════════
+// INDICI LOCALI — caricati una sola volta all'avvio dalla stessa cartella
+// del sito su GitHub Pages. Zero chiamate API a runtime, zero costi.
+//
+// Per generare questi file: esegui costruisci_indice_arasaac.py (una volta)
+// poi carica arasaac_index_it.json e mulberry_index.json su GitHub Pages.
+// ═══════════════════════════════════════════════════════════════════════════
+
+// URL dei file indice (relativi → stessa cartella su GitHub Pages)
+const ARASAAC_INDEX_URL = "arasaac_index_it.json";
+const MULBERRY_INDEX_URL = "mulberry_index.json";
+
+// Dizionari in memoria (popolati all'avvio)
+let ARASAAC_INDEX = {};   // parola → ID numerico pittogramma
+let MULBERRY_INDEX = {};  // parola → nome file SVG Mulberry
+let indiciCaricati = false;
+
+// URL base immagine ARASAAC dato un ID
+function urlArasaac(id) {
+  return `https://api.arasaac.org/v1/pictograms/${id}?download=false`;
+}
+
+// URL SVG Mulberry dato il nome file
+function urlMulberry(file) {
+  return `https://mulberrysymbols.org/symbols/${encodeURIComponent(file)}.svg`;
+}
+
+async function caricaIndici() {
+  if (indiciCaricati) return;
+  try {
+    const [rA, rM] = await Promise.all([
+      fetch(ARASAAC_INDEX_URL),
+      fetch(MULBERRY_INDEX_URL)
+    ]);
+    if (rA.ok) {
+      ARASAAC_INDEX = await rA.json();
+      console.log(`ARASAAC index: ${Object.keys(ARASAAC_INDEX).length} parole`);
+    } else {
+      console.warn("arasaac_index_it.json non trovato — la ricerca live ARASAAC resta attiva come fallback");
+    }
+    if (rM.ok) {
+      MULBERRY_INDEX = await rM.json();
+      console.log(`Mulberry index: ${Object.keys(MULBERRY_INDEX).length} parole`);
+    }
+    indiciCaricati = true;
+  } catch(e) {
+    console.warn("Indici non caricati:", e.message);
+    indiciCaricati = true; // non bloccare il funzionamento
+  }
+}
+
+window.addEventListener('DOMContentLoaded', caricaIndici);
+
+function provaEsempio(testo) {
+  document.getElementById('frase').value = testo;
+  trasforma();
+}
+
+function pulisci() {
+  document.getElementById('frase').value = "";
+  document.getElementById('risultato').innerHTML = "";
+}
+
+// Classifica una parola NON presente nel dizionario in base alla
+// terminazione tipica italiana, per assegnare il colore CAA corretto
+// anche a parole non elencate manualmente.
+function indovinaCategoria(parola) {
+  const p = parola.toLowerCase();
+
+  // Avverbi
+  if (p.endsWith("mente")) return "aggettivo"; // descrittori (blu)
+
+  // Verbi all'infinito
+  if (p.length > 4 && (p.endsWith("are") || p.endsWith("ere") || p.endsWith("ire"))) {
+    return "verbo"; // verde
+  }
+
+  // Verbi coniugati (terminazioni comuni 1a/2a/3a persona, presente/passato)
+  if (p.length > 4 && /(iamo|ate|ano|ono|avo|ava|avano|isco|isce|iscono|erò|erà|irò|irà|ato|uto|ito)$/.test(p)) {
+    return "verbo"; // verde
+  }
+
+  // Aggettivi (terminazioni tipiche)
+  if (/(oso|osa|ico|ica|ile|bile|ale|ante|ente|ivo|iva)$/.test(p)) {
+    return "aggettivo"; // blu
+  }
+
+  // Parole funzionali molto corte (probabili preposizioni/congiunzioni non elencate)
+  if (p.length <= 3) return "funzione"; // grigio
+
+  // Default: trattata come "cosa" (nome)
+  return "nome"; // arancione
+}
+
+// ─── CACHE in memoria (dura per tutta la sessione) ───────────────────────────
+const cacheImmagini = {};
+
+// ─── Varianti morfologiche (per ricerca ARASAAC live come fallback) ──────────
+function generaVarianti(p) {
+  const v = new Set();
+  if (p.endsWith("i") && p.length > 3) {
+    v.add(p.slice(0,-1)+"o"); v.add(p.slice(0,-1)+"e"); v.add(p.slice(0,-1)+"a");
+  }
+  if (p.endsWith("e") && p.length > 3) v.add(p.slice(0,-1)+"a");
+  if (p.endsWith("he") && p.length > 4) v.add(p.slice(0,-2)+"ca");
+  if (p.endsWith("ghi") && p.length > 4) v.add(p.slice(0,-3)+"go");
+  if (p.endsWith("a") && p.length > 3) v.add(p.slice(0,-1)+"o");
+  ["are","ere","ire"].forEach(des => {
+    if (p.length > 4)
+      v.add(p.replace(/(iamo|ate|ano|ono|avo|ava|avano|isco|isce|iscono|erò|erà|irò|irà|ato|ata|uto|uta|ito|ita|o|i|a|e)$/, "") + des);
+  });
+  v.delete(p);
+  return Array.from(v);
+}
+
+// ─── Ricerca ARASAAC live (usata solo se l'indice locale non è disponibile) ──
+async function richiediArasaacLive(parola) {
+  try {
+    const r = await fetch(`https://api.arasaac.org/v1/pictograms/it/search/${encodeURIComponent(parola)}`);
+    if (!r.ok) return null;
+    const d = await r.json();
+    if (d && d.length > 0) return urlArasaac(d[0]._id);
+  } catch(e) {}
+  return null;
+}
+
+// ─── Ricerca principale a 3 livelli ─────────────────────────────────────────
+// L1: Indice ARASAAC locale (parola→ID, zero chiamate API) + varianti morfo
+//     Fallback: ricerca live ARASAAC se l'indice non è stato caricato
+// L2: Indice Mulberry locale (parola→nome SVG, zero chiamate API)
+// L3: Emoji dal dizionario locale (sempre disponibile, anche offline)
+async function cercaPittogramma(parola) {
+  if (cacheImmagini[parola] !== undefined) return cacheImmagini[parola];
+
+  let esito = null;
+
+  // L1a — Indice ARASAAC locale: parola esatta
+  if (ARASAAC_INDEX[parola]) {
+    esito = urlArasaac(ARASAAC_INDEX[parola]);
+  }
+
+  // L1b — Indice ARASAAC locale: varianti morfologiche
+  if (!esito) {
+    for (const v of generaVarianti(parola)) {
+      if (ARASAAC_INDEX[v]) { esito = urlArasaac(ARASAAC_INDEX[v]); break; }
+    }
+  }
+
+  // L1c — Fallback live ARASAAC (se l'indice non è ancora stato caricato)
+  if (!esito && Object.keys(ARASAAC_INDEX).length === 0) {
+    esito = await richiediArasaacLive(parola);
+    if (!esito) {
+      for (const v of generaVarianti(parola)) {
+        esito = await richiediArasaacLive(v);
+        if (esito) break;
+      }
+    }
+  }
+
+  // L2 — Indice Mulberry locale
+  if (!esito) {
+    const mulFile = MULBERRY_INDEX[parola];
+    if (mulFile) esito = { tipo: "mulberry", file: mulFile };
+  }
+
+  cacheImmagini[parola] = esito || null;
+  return cacheImmagini[parola];
+}
+
+
+async function trasforma() {
+  const testo = document.getElementById('frase').value.trim();
+  const risultato = document.getElementById('risultato');
+  risultato.innerHTML = "";
+  if (!testo) return;
+
+  const parole = testo.toLowerCase().match(/[a-zàèéìòù']+/gi);
+  if (!parole) return;
+
+  const div_per_parola = [];
+
+  parole.forEach(parolaOriginale => {
+    let parola = parolaOriginale.replace(/['']/g, "'");
+    let voce = dizionario[parola];
+    if (!voce && parola.includes("'")) {
+      const parti = parola.split("'");
+      voce = dizionario[parti[parti.length - 1]];
+    }
+
+    const div = document.createElement('div');
+    const categoria = voce ? voce.cat : indovinaCategoria(parola);
+    div.className = "simbolo " + categoria;
+
+    const emojiRiserva = voce ? voce.icona : "📝";
+    div.innerHTML = `
+      <div class="icona" style="font-size:1.6rem;color:#aaa">⏳</div>
+      <div class="parola">${capitalizza(parolaOriginale)}</div>
+    `;
+    risultato.appendChild(div);
+    div_per_parola.push({ div, parola, emojiRiserva });
+  });
+
+  // Carica pittogrammi in parallelo sui 3 livelli
+  div_per_parola.forEach(async ({ div, parola, emojiRiserva }) => {
+    const esito = await cercaPittogramma(parola);
+    const iconaDiv = div.querySelector('.icona');
+    iconaDiv.removeAttribute('style');
+
+    if (!esito) {
+      // L3 — emoji di riserva (sempre disponibile, anche offline)
+      iconaDiv.innerHTML = `<span style="font-size:3.4rem">${emojiRiserva}</span>`;
+    } else if (typeof esito === "string") {
+      // L1 — ARASAAC: pittogramma CAA ufficiale
+      iconaDiv.innerHTML = `<img src="${esito}" alt="${parola}" title="Fonte: ARASAAC">`;
+    } else if (esito.tipo === "mulberry") {
+      // L2 — Mulberry Symbols: SVG aperto e scalabile
+      iconaDiv.innerHTML = `<img src="${urlMulberry(esito.file)}" alt="${parola}" title="Fonte: Mulberry Symbols">`;
+    }
+  });
+}
+
+function capitalizza(parola) {
+  return parola.charAt(0).toUpperCase() + parola.slice(1);
+}
+
+function leggiFrase() {
+  const testo = document.getElementById('frase').value.trim();
+  if (!testo) return;
+  if ('speechSynthesis' in window) {
+    const utterance = new SpeechSynthesisUtterance(testo);
+    utterance.lang = 'it-IT';
+    utterance.rate = 0.85;
+    window.speechSynthesis.cancel();
+    window.speechSynthesis.speak(utterance);
+  } else {
+    alert("La lettura vocale non è supportata su questo dispositivo.");
+  }
+}
+
+// Invio con tasto Invio
+document.getElementById('frase').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    trasforma();
+  }
+});
+</script>
+</body>
+</html>
